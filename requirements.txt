@@ -1,0 +1,7 @@
+python-sat>=0.1.8.dev1
+ortools>=9.8
+gurobipy>=11.0
+docplex>=2.25
+matplotlib>=3.8
+pandas>=2.1
+numpy>=1.26

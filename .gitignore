@@ -1,0 +1,28 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Solver artifacts
+*.log
+*.lp
+*.mps
+gurobi.lic
+cplex.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Report
+report/*
+!report/*.pdf

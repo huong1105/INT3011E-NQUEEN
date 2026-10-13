@@ -1,6 +1,6 @@
 # N-Queens: SAT Encodings vs CP vs ILP
 
-A comprehensive empirical study comparing **5 SAT At-Most-One (AMO) encodings** against **Constraint Programming (CP)** and **Integer Linear Programming (ILP)** for solving the N-Queens problem at scale ($N \in [8, 1024]$).
+A comprehensive empirical study comparing **5 SAT At-Most-One (AMO) encodings** against **Constraint Programming (CP)** and **Integer Linear Programming (ILP)** for solving the N-Queens problem at scale (*N* ∈ [8, 1024]).
 
 This repository contains the full source code, benchmarking suite, visualization tools, and technical report for **Assignment 1** in *Modern Issues in Computer Science (INT3011E)*, VNU University of Engineering and Technology (VNU-UET).
 
@@ -8,9 +8,9 @@ This repository contains the full source code, benchmarking suite, visualization
 
 ## Key Findings
 
-- **Best SAT Encoding:** The **Product (2D Grid) encoding** achieves the highest SAT scalability, solving $N = 1024$ in **13.04s** with Glucose3, outperforming Binary (22.36s) and Commander (19.44s).
-- **Sequential Counter Pathology:** Despite producing the fewest clauses ($\Theta(N^2)$), the Sequential Counter encoding suffers from deep linear implication chains ($s_1 \rightarrow s_2 \rightarrow \dots$), causing severe timeouts on Glucose3 from $N \ge 128$. However, **CaDiCaL 153** solves Sequential up to $N = 512$ thanks to chronological backtracking.
-- **Global Constraints vs. Flat CNF:** Commercial solvers leveraging global propagation—**Gurobi** (0.64s at $N = 1024$) and **IBM CPLEX CP Optimizer** (0.88s at $N = 1024$)—outperform SAT encodings by 1–2 orders of magnitude due to native domain filtering (Régin's bipartite matching).
+- **Best SAT Encoding:** The **Product (2D Grid) encoding** achieves the highest SAT scalability, solving *N* = 1024 in **13.04s** with Glucose3, outperforming Binary (22.36s) and Commander (19.44s).
+- **Sequential Counter Pathology:** Despite producing the fewest clauses (Θ(*N*²)), the Sequential Counter encoding suffers from deep linear implication chains (s₁ → s₂ → ...), causing severe timeouts on Glucose3 from *N* ≥ 128. However, **CaDiCaL 153** solves Sequential up to *N* = 512 thanks to chronological backtracking.
+- **Global Constraints vs. Flat CNF:** Commercial solvers leveraging global propagation—**Gurobi** (0.64s at *N* = 1024) and **IBM CPLEX CP Optimizer** (0.88s at *N* = 1024)—outperform SAT encodings by 1–2 orders of magnitude due to native domain filtering (Régin's bipartite matching).
 
 ---
 
@@ -18,9 +18,9 @@ This repository contains the full source code, benchmarking suite, visualization
 
 | Paradigm | Solver Engine | Formulation / Approach |
 |:---|:---|:---|
-| **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Binomial** (Pairwise, $\Theta(n^2)$ clauses per line) |
-| **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Binary** (Bitwise, $\Theta(n \log n)$ clauses) |
-| **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Sequential Counter** (Linear chain, $3n-4$ clauses) |
+| **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Binomial** (Pairwise, Θ(*n*²) clauses per line) |
+| **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Binary** (Bitwise, Θ(*n* log *n*) clauses) |
+| **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Sequential Counter** (Linear chain, 3*n* − 4 clauses) |
 | **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Commander Variable** (Hierarchical groups) |
 | **SAT** | **Glucose3** & **CaDiCaL 153** (PySAT) | **Product** (2D grid decomposition) |
 | **CP** | **Google OR-Tools CP-SAT** | Integer variables + `AllDifferent` global constraints |
@@ -89,7 +89,7 @@ python run_benchmark.py --sizes 8 16 32 64 128 256 512 1024 --timeout 120 --runs
 ```
 
 Available CLI arguments:
-- `--sizes`: List of board sizes $N$ (e.g., `8 16 32 64 128 256 512 1024`).
+- `--sizes`: List of board sizes *N* (e.g., `8 16 32 64 128 256 512 1024`).
 - `--timeout`: Timeout in seconds per solver run (default: `60`).
 - `--sat-solvers`: PySAT solver backends (`glucose3`, `cadical153`, etc.).
 - `--runs`: Number of repeated runs to compute median runtime (default: `3`).

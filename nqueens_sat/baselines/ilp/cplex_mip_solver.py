@@ -9,7 +9,8 @@ def solve_n_queens_cplex_mip(n, time_limit=60):
     except ImportError:
         if not shutil.which("cplex") and not shutil.which("cplex.exe"):
             return {"sat": False,
-                    "time_s": 0.0,
+                    "solve_time_s": 0.0,
+                    "build_time_s": 0.0,
                     "solution": None,
                     "solver": "CPLEX-MIP",
                     "error": "cplex not installed"}
@@ -18,7 +19,8 @@ def solve_n_queens_cplex_mip(n, time_limit=60):
         from docplex.mp.model import Model
     except ImportError:
         return {"sat": False,
-                "time_s": 0.0, 
+                "solve_time_s": 0.0, 
+                "build_time_s": 0.0,
                 "solution": None,
                 "solver": "CPLEX-MIP",
                 "error": "docplex not installed"}
@@ -52,19 +54,18 @@ def solve_n_queens_cplex_mip(n, time_limit=60):
         if sol is not None:
             solution = [[int(sol.get_value(x[r, c]) > 0.5) for c in range(n)] for r in range(n)]
             return {"sat": True, 
-                    "time_s": round(elapsed, 6),
                     "solve_time_s": round(elapsed, 6),
                     "build_time_s": round(build_time, 6),
                     "solution": solution, 
                     "solver": "CPLEX-MIP"}
         return {"sat": False, 
-                "time_s": round(elapsed, 6),
                 "solve_time_s": round(elapsed, 6),
                 "build_time_s": round(build_time, 6),
                 "solution": None, 
                 "solver": "CPLEX-MIP"}
     except Exception as e:
         return {"sat": False, 
-                "time_s": 0.0, 
+                "solve_time_s": 0.0, 
+                "build_time_s": 0.0,
                 "solution": None, 
                 "solver": "CPLEX-MIP", "error": str(e)}

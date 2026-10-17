@@ -45,7 +45,6 @@ def solve(encoding_name, n, solver_name="glucose3"):
 
     return {
         "sat": is_sat,
-        "time_s": round(solve_time, 6),
         "solve_time_s": round(solve_time, 6),
         "build_time_s": round(build_time, 6),
         "solution": solution,

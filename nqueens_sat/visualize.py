@@ -61,6 +61,12 @@ def _prepare_df(df):
                 return s.split("-")[1] if "-" in s else "glucose3"
             return ""
         d["sat_solver"] = d.apply(get_backend, axis=1)
+
+    if "solve_time_s" not in d.columns and "time_s" in d.columns:
+        d["solve_time_s"] = d["time_s"]
+    elif "time_s" not in d.columns and "solve_time_s" in d.columns:
+        d["time_s"] = d["solve_time_s"]
+
     return d
 
 
@@ -96,7 +102,7 @@ def plot_clauses(df, output_dir):
     ax.set_ylabel("Number of CNF Clauses")
     ax.set_title("CNF Clause Scaling: 5 SAT AMO Encodings\n(Invariant to SAT Solver Backend)", fontsize=11, fontweight="bold")
     ax.grid(True, which="both", ls="--", alpha=0.4)
-    ax.legend(loc="upper left", framealpha=0.9)
+    ax.legend(loc="lower right", framealpha=0.9)
     plt.tight_layout()
 
     path = os.path.join(output_dir, "clauses_scaling.png")
@@ -121,7 +127,7 @@ def plot_runtime(df, output_dir):
         sub = df_sat[df_sat["encoding"] == enc].sort_values("n")
         if not sub.empty:
             ax.plot(
-                sub["n"], sub["time_s"],
+                sub["n"], sub["solve_time_s"],
                 color=ENCODING_COLORS.get(enc, "#333333"),
                 marker=sat_markers.get(enc, "o"),
                 ls="-",
@@ -135,7 +141,7 @@ def plot_runtime(df, output_dir):
         sub = df_ok[df_ok["solver"] == b_name].sort_values("n")
         if not sub.empty:
             ax.plot(
-                sub["n"], sub["time_s"],
+                sub["n"], sub["solve_time_s"],
                 color=style["color"],
                 marker=style["marker"],
                 ls=style["ls"],
@@ -150,7 +156,7 @@ def plot_runtime(df, output_dir):
     ax.set_ylabel("Solving Time (seconds)", fontweight="bold")
     ax.set_title("Runtime Comparison: SAT (Glucose3) vs CP vs ILP", fontweight="bold")
     ax.grid(True, which="both", ls="--", alpha=0.4)
-    ax.legend(loc="upper left", fontsize=8, framealpha=0.9, ncol=2)
+    ax.legend(loc="lower right", fontsize=8, framealpha=0.9, ncol=2)
 
     plt.tight_layout()
     path = os.path.join(output_dir, "runtime_comparison.png")
@@ -175,7 +181,7 @@ def plot_solver_comparison(df, output_dir):
         sub = df_gluc[df_gluc["encoding"] == enc].sort_values("n")
         if not sub.empty:
             ax1.plot(
-                sub["n"], sub["time_s"],
+                sub["n"], sub["solve_time_s"],
                 color=ENCODING_COLORS.get(enc, "#333333"),
                 marker=markers.get(enc, "o"),
                 ls="-",
@@ -190,7 +196,7 @@ def plot_solver_comparison(df, output_dir):
     ax1.set_ylabel("Solving Time (seconds)", fontweight="bold")
     ax1.set_title("(a) Glucose3 Backend", fontweight="bold", fontsize=11)
     ax1.grid(True, which="both", ls="--", alpha=0.4)
-    ax1.legend(loc="upper left", fontsize=8.5, framealpha=0.9)
+    ax1.legend(loc="lower right", fontsize=8.5, framealpha=0.9)
 
     # Subplot 2: CaDiCaL 153
     df_cadi = df_sat[df_sat["sat_solver"] == "cadical153"]
@@ -198,7 +204,7 @@ def plot_solver_comparison(df, output_dir):
         sub = df_cadi[df_cadi["encoding"] == enc].sort_values("n")
         if not sub.empty:
             ax2.plot(
-                sub["n"], sub["time_s"],
+                sub["n"], sub["solve_time_s"],
                 color=ENCODING_COLORS.get(enc, "#333333"),
                 marker=markers.get(enc, "o"),
                 ls="--",
@@ -211,7 +217,7 @@ def plot_solver_comparison(df, output_dir):
     ax2.set_xlabel("Board Size N", fontweight="bold")
     ax2.set_title("(b) CaDiCaL 153 Backend", fontweight="bold", fontsize=11)
     ax2.grid(True, which="both", ls="--", alpha=0.4)
-    ax2.legend(loc="upper left", fontsize=8.5, framealpha=0.9)
+    ax2.legend(loc="lower right", fontsize=8.5, framealpha=0.9)
 
     plt.tight_layout()
     path = os.path.join(output_dir, "solver_comparison.png")
@@ -229,7 +235,7 @@ def plot_cactus(df, output_dir):
     df_sat = df_ok[df_ok["category"] == "SAT"]
     for solver_name in df_sat["solver"].unique():
         sub = df_sat[df_sat["solver"] == solver_name]
-        times = sorted(sub["time_s"].dropna().tolist())
+        times = sorted(sub["solve_time_s"].dropna().tolist())
         if not times:
             continue
         enc = sub["encoding"].iloc[0]
@@ -246,7 +252,7 @@ def plot_cactus(df, output_dir):
 
     for b_name, style in BASELINE_STYLES.items():
         sub = df_ok[df_ok["solver"] == b_name]
-        times = sorted(sub["time_s"].dropna().tolist())
+        times = sorted(sub["solve_time_s"].dropna().tolist())
         if times:
             ax.plot(
                 range(1, len(times) + 1), times,
@@ -307,7 +313,7 @@ def plot_encoding_overhead(df, output_dir):
     ax1.set_ylabel("Build / Encoding Time (seconds)", fontweight="bold")
     ax1.set_title("(a) CNF Generation Time vs Board Size", fontweight="bold", fontsize=11)
     ax1.grid(True, which="both", ls="--", alpha=0.4)
-    ax1.legend(loc="upper left", fontsize=8.5, framealpha=0.9)
+    ax1.legend(loc="lower right", fontsize=8.5, framealpha=0.9)
 
     # Subplot 2: Build Time vs Solve Time (Product vs Sequential on Glucose3)
     df_gluc = df_sat[df_sat["sat_solver"] == "glucose3"]
@@ -327,7 +333,7 @@ def plot_encoding_overhead(df, output_dir):
     ax2.set_ylabel("Time (seconds)", fontweight="bold")
     ax2.set_title("(b) Build Time (dashed) vs Pure Solve Time (solid)", fontweight="bold", fontsize=11)
     ax2.grid(True, which="both", ls="--", alpha=0.4)
-    ax2.legend(loc="upper left", fontsize=7.5, framealpha=0.9, ncol=2)
+    ax2.legend(loc="lower right", fontsize=7.5, framealpha=0.9, ncol=2)
 
     plt.tight_layout()
     path = os.path.join(output_dir, "encoding_overhead.png")

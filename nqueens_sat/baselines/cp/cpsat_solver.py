@@ -26,7 +26,6 @@ def solve_n_queens_cpsat(n, time_limit=60):
         solution = [[1 if solver.Value(queens[i]) == j else 0 for j in range(n)] for i in range(n)]
 
     return {"sat": is_sat,
-            "time_s": round(elapsed, 6),
             "solve_time_s": round(elapsed, 6),
             "build_time_s": round(build_time, 6),
             "solution": solution,

@@ -8,7 +8,7 @@ This repository contains the full source code, benchmarking suite, visualization
 
 ## Key Findings
 
-- **Best SAT Encoding:** The **Product (2D Grid) encoding** achieves the highest SAT scalability, solving *N* = 1024 in **13.04s** with Glucose3, outperforming Binary (22.36s) and Commander (19.44s).
+- **Best SAT Encoding:** The **Product (2D Grid) encoding** achieves the highest SAT scalability, solving *N* = 1024 in **13.37s** with Glucose3, outperforming Binary (22.36s) and Commander (19.44s).
 - **Sequential Counter Pathology:** Despite producing the fewest clauses (Θ(*N*²)), the Sequential Counter encoding suffers from deep linear implication chains (s₁ → s₂ → ...), causing severe timeouts on Glucose3 from *N* ≥ 128. However, **CaDiCaL 153** solves Sequential up to *N* = 512 thanks to chronological backtracking.
 - **Global Constraints vs. Flat CNF:** Commercial solvers leveraging global propagation—**Gurobi** (0.64s at *N* = 1024) and **IBM CPLEX CP Optimizer** (0.88s at *N* = 1024)—outperform SAT encodings by 1–2 orders of magnitude due to native domain filtering (Régin's bipartite matching).
 

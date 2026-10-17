@@ -17,9 +17,9 @@ def binomial_AMO(clauses, variables):
     return clauses
 
 
-def generate_matrix(start, variables_length, n):
+def generate_matrix(start, variables_length):
     p = math.ceil(math.sqrt(variables_length))
-    q = math.ceil(n / p)
+    q = math.ceil(variables_length / p)
     return (
         [i for i in range(start, start + p)],
         [j for j in range(start + p, start + p + q)]
@@ -58,7 +58,7 @@ def binary_AMO(clauses, variables, n, new_variables_count):
 
 
 def at_most_one(clauses, variables, n, new_variables_count):
-    row, col = generate_matrix(n ** 2 + new_variables_count + 1, len(variables), n)
+    row, col = generate_matrix(n ** 2 + new_variables_count + 1, len(variables))
     new_variables_count += len(row) + len(col)
 
     if len(variables) > 10:

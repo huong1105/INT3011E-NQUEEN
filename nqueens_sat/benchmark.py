@@ -18,8 +18,7 @@ def _run_sat(encoding_name, n, sat_solver="glucose3"):
         "encoding": encoding_name,
         "sat_solver": sat_solver,
         "solver": f"{encoding_name}-{sat_solver}",
-        "time_s": result["time_s"],
-        "solve_time_s": result.get("solve_time_s", result["time_s"]),
+        "solve_time_s": result.get("solve_time_s", 0.0),
         "build_time_s": result.get("build_time_s", 0.0),
         "status": "SAT" if result["sat"] else "UNSAT",
         "clauses": result.get("clauses", ""),
@@ -48,9 +47,10 @@ def _run_baseline(solver_name, n, time_limit):
     result = solver_func(n, time_limit=time_limit)
 
     status = "SAT" if result.get("sat") else "FAIL"
+    solve_time = result.get("solve_time_s", result.get("time_s", 0.0))
     if result.get("error"):
         status = "ERROR"
-    elif status == "FAIL" and result.get("time_s", 0) >= time_limit * 0.95:
+    elif status == "FAIL" and solve_time >= time_limit * 0.95:
         status = "TIMEOUT"
 
     if result.get("sat") and result.get("solution"):
@@ -65,8 +65,7 @@ def _run_baseline(solver_name, n, time_limit):
         "encoding": "",
         "sat_solver": "",
         "solver": result.get("solver", canonical_name),
-        "time_s": result.get("time_s", 0.0),
-        "solve_time_s": result.get("solve_time_s", result.get("time_s", 0.0)),
+        "solve_time_s": solve_time,
         "build_time_s": result.get("build_time_s", 0.0),
         "status": status,
         "clauses": "",
@@ -131,7 +130,6 @@ def _run_repeated(runner_func, args, timeout, runs=3):
 
     final_rec = sat_runs[0].copy()
     final_rec["solve_time_s"] = round(statistics.median(solve_times), 6)
-    final_rec["time_s"] = final_rec["solve_time_s"]
     final_rec["build_time_s"] = round(statistics.median(build_times), 6)
     final_rec["runs"] = len(sat_runs)
     return final_rec
@@ -178,7 +176,6 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
                         "encoding": enc_name,
                         "sat_solver": s_backend,
                         "solver": solver_full_name,
-                        "time_s": timeout,
                         "solve_time_s": timeout,
                         "build_time_s": 0.0,
                         "status": "TIMEOUT",
@@ -194,7 +191,6 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
                         "encoding": enc_name,
                         "sat_solver": s_backend,
                         "solver": solver_full_name,
-                        "time_s": 0.0,
                         "solve_time_s": 0.0,
                         "build_time_s": 0.0,
                         "status": "ERROR",
@@ -225,7 +221,6 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
                     "encoding": "",
                     "sat_solver": "",
                     "solver": display_name,
-                    "time_s": timeout,
                     "solve_time_s": timeout,
                     "build_time_s": 0.0,
                     "status": "TIMEOUT",
@@ -241,7 +236,6 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
                     "encoding": "",
                     "sat_solver": "",
                     "solver": display_name,
-                    "time_s": 0.0,
                     "solve_time_s": 0.0,
                     "build_time_s": 0.0,
                     "status": "ERROR",
@@ -253,7 +247,7 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
             else:
                 records.append(res)
 
-        cols = ["n", "category", "encoding", "sat_solver", "solver", "time_s", "solve_time_s", "build_time_s", "status", "clauses", "vars", "runs", "error"]
+        cols = ["n", "category", "encoding", "sat_solver", "solver", "solve_time_s", "build_time_s", "status", "clauses", "vars", "runs", "error"]
         df = pd.DataFrame(records).reindex(columns=cols)
         saved = False
         for _ in range(3):

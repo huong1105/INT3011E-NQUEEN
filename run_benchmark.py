@@ -19,7 +19,7 @@ def main():
         help="CSV output path")
     parser.add_argument(
         "--sat-solvers", "--sat-solver", nargs="+", default=["glucose3", "cadical153"],
-        help="PySAT solver backends to evaluate (e.g. glucose3 cadical153 minisat22)")
+        help="PySAT solver backends to evaluate (glucose3 cadical153)")
     parser.add_argument(
         "--runs", type=int, default=3,
         help="Number of runs per configuration to compute median runtime (default: 3)")

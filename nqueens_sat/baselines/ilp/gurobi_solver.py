@@ -9,7 +9,8 @@ def solve_n_queens_gurobi(n, time_limit=60):
         from gurobipy import GRB
     except ImportError:
         return {"sat": False, 
-                "time_s": 0.0, 
+                "solve_time_s": 0.0, 
+                "build_time_s": 0.0,
                 "solution": None, 
                 "solver": "Gurobi", 
                 "error": "gurobipy not installed"}
@@ -26,7 +27,8 @@ def solve_n_queens_gurobi(n, time_limit=60):
 
     if m is None:
         return {"sat": False,
-                "time_s": 0.0,
+                "solve_time_s": 0.0,
+                "build_time_s": 0.0,
                 "solution": None,
                 "solver": "Gurobi",
                 "error": str(last_err)}
@@ -67,20 +69,19 @@ def solve_n_queens_gurobi(n, time_limit=60):
                     row.append(val_int)
                 solution.append(row)
             return {"sat": True, 
-                    "time_s": round(elapsed, 6), 
                     "solve_time_s": round(elapsed, 6),
                     "build_time_s": round(build_time, 6),
                     "solution": solution, 
                     "solver": "Gurobi"}
         return {"sat": False, 
-                "time_s": round(elapsed, 6), 
                 "solve_time_s": round(elapsed, 6),
                 "build_time_s": round(build_time, 6),
                 "solution": None, 
                 "solver": "Gurobi"}
     except Exception as e:
         return {"sat": False, 
-                "time_s": 0.0, 
+                "solve_time_s": 0.0, 
+                "build_time_s": 0.0,
                 "solution": None, 
                 "solver": "Gurobi", 
                 "error": str(e)}

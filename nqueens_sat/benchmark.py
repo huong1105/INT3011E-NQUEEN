@@ -6,7 +6,7 @@ import statistics
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor, TimeoutError as FuturesTimeout
 
-from .encoders import solve as sat_solve, list_encodings
+from .encoders import solve as sat_solve, list_encodings, build_formula
 from .baselines import BASELINE_SOLVERS
 from .utils import verify_solution
 
@@ -80,7 +80,7 @@ def _run_with_timeout(runner_func, args, timeout):
     future = pool.submit(runner_func, *args)
     try:
         rec = future.result(timeout=timeout)
-        pool.shutdown(wait=False)
+        pool.shutdown(wait=True)
         return rec
     except FuturesTimeout:
         for p in pool._processes.values():
@@ -170,6 +170,21 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
 
                 res = _run_repeated(_run_sat, (enc_name, n, s_backend), timeout, runs=runs)
                 if res == "TIMEOUT":
+                    c_val, v_val, b_time = "", "", 0.0
+                    for prev_r in records:
+                        if prev_r.get("n") == n and prev_r.get("encoding") == enc_name and prev_r.get("clauses"):
+                            c_val = prev_r.get("clauses")
+                            v_val = prev_r.get("vars")
+                            b_time = prev_r.get("build_time_s", 0.0)
+                            break
+                    if not c_val:
+                        try:
+                            f_info = build_formula(enc_name, n, s_backend)
+                            c_val = f_info["clauses"]
+                            v_val = f_info["vars"]
+                            b_time = f_info["build_time_s"]
+                        except Exception:
+                            pass
                     records.append({
                         "n": n,
                         "category": "SAT",
@@ -177,10 +192,10 @@ def run(sizes, timeout=60, output_csv="results/benchmark_results.csv",
                         "sat_solver": s_backend,
                         "solver": solver_full_name,
                         "solve_time_s": timeout,
-                        "build_time_s": 0.0,
+                        "build_time_s": b_time,
                         "status": "TIMEOUT",
-                        "clauses": "",
-                        "vars": "",
+                        "clauses": c_val,
+                        "vars": v_val,
                         "runs": 1,
                         "error": "",
                     })

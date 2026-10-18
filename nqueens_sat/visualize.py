@@ -285,8 +285,8 @@ def plot_encoding_overhead(df, output_dir):
     if "build_time_s" not in d.columns or d["build_time_s"].isna().all():
         return
 
-    df_sat = d[(d["category"] == "SAT") & (d["status"] == "SAT")].copy()
-    if df_sat.empty:
+    df_build = d[(d["category"] == "SAT") & (d["build_time_s"] > 0)].copy()
+    if df_build.empty:
         return
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
@@ -295,7 +295,7 @@ def plot_encoding_overhead(df, output_dir):
 
     # Subplot 1: Build Time vs N
     for enc in encodings:
-        sub = df_sat[df_sat["encoding"] == enc].drop_duplicates(subset=["encoding", "n"]).sort_values("n")
+        sub = df_build[df_build["encoding"] == enc].drop_duplicates(subset=["encoding", "n"]).sort_values("n")
         if not sub.empty:
             ax1.plot(
                 sub["n"], sub["build_time_s"],
@@ -316,7 +316,8 @@ def plot_encoding_overhead(df, output_dir):
     ax1.legend(loc="lower right", fontsize=8.5, framealpha=0.9)
 
     # Subplot 2: Build Time vs Solve Time (Product vs Sequential on Glucose3)
-    df_gluc = df_sat[df_sat["sat_solver"] == "glucose3"]
+    df_sat_ok = d[(d["category"] == "SAT") & (d["status"] == "SAT")].copy()
+    df_gluc = df_sat_ok[df_sat_ok["sat_solver"] == "glucose3"]
     key_encs = ["product", "sequential", "binary"]
     for enc in key_encs:
         sub = df_gluc[df_gluc["encoding"] == enc].sort_values("n")

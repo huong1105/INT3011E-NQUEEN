@@ -13,7 +13,6 @@ _MODULES = {
 
 
 def solve(encoding_name, n, solver_name="glucose3"):
-    """Unified solver interface for all SAT encodings with fair timing."""
     mod = _MODULES[encoding_name]
     
     t_build_start = time.perf_counter()
@@ -51,6 +50,26 @@ def solve(encoding_name, n, solver_name="glucose3"):
         "encoding": encoding_name,
         "clauses": num_clauses,
         "vars": num_vars,
+    }
+
+
+def build_formula(encoding_name, n, solver_name="glucose3"):
+    mod = _MODULES[encoding_name]
+    t_build_start = time.perf_counter()
+    variables = mod.generate_variables(n)
+    clauses = mod.generate_clauses(n, variables)
+    num_clauses = len(clauses)
+    
+    from pysat.solvers import Solver
+    with Solver(name=solver_name) as solver:
+        solver.append_formula(clauses)
+        build_time = time.perf_counter() - t_build_start
+        num_vars = solver.nof_vars()
+        
+    return {
+        "clauses": num_clauses,
+        "vars": num_vars,
+        "build_time_s": round(build_time, 6),
     }
 
 

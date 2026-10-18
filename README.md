@@ -10,7 +10,7 @@ This repository contains the full source code, benchmarking suite, visualization
 
 - **Best SAT Encoding:** The **Product (2D Grid) encoding** achieves the highest SAT scalability, solving *N* = 1024 in **13.37s** with Glucose3, outperforming Binary (22.36s) and Commander (19.44s).
 - **Sequential Counter Pathology:** Despite producing the fewest clauses (Θ(*N*²)), the Sequential Counter encoding suffers from deep linear implication chains (s₁ → s₂ → ...), causing severe timeouts on Glucose3 from *N* ≥ 128. However, **CaDiCaL 153** solves Sequential up to *N* = 512 thanks to chronological backtracking.
-- **Global Constraints vs. Flat CNF:** Commercial solvers leveraging global propagation—**Gurobi** (0.64s at *N* = 1024) and **IBM CPLEX CP Optimizer** (0.88s at *N* = 1024)—outperform SAT encodings by 1–2 orders of magnitude due to native domain filtering (Régin's bipartite matching).
+- **Global Constraints & LP Cuts vs. Flat CNF:** Commercial solvers—**Gurobi** (0.60s at *N* = 1024) and **IBM CPLEX CP Optimizer** (0.88s at *N* = 1024)—outperform SAT encodings by 1–2 orders of magnitude thanks to high-level global propagators (Régin's bipartite matching in CP) and root LP relaxation with clique cut generation in ILP.
 
 ---
 
@@ -52,7 +52,7 @@ This repository contains the full source code, benchmarking suite, visualization
 │   └── figures/                 # Generated plots (cactus, scaling, comparisons)
 ├── report/
 │   └── main.pdf                 # Full technical report (Elsevier cas-sc format)
-├── run_benchmark.py             # CLI entry point to run benchmarks
+├── run_benchmark.py             # CLI entry point to run benchmarks & plots
 └── requirements.txt             # Python dependencies
 ```
 
@@ -89,16 +89,18 @@ python run_benchmark.py --sizes 8 16 32 64 128 256 512 1024 --timeout 120 --runs
 ```
 
 Available CLI arguments:
-- `--sizes`: List of board sizes *N* (e.g., `8 16 32 64 128 256 512 1024`).
+- `--sizes`: List of board sizes *N* (default: `8 16 32 64 128`).
 - `--timeout`: Timeout in seconds per solver run (default: `60`).
-- `--sat-solvers`: PySAT solver backends (`glucose3`, `cadical153`, etc.).
+- `--sat-solvers`: PySAT solver backends (default: `glucose3 cadical153`).
 - `--runs`: Number of repeated runs to compute median runtime (default: `3`).
 - `--force`: Force re-computation of existing cached results in CSV.
 - `--output`: Path to output CSV file (default: `results/benchmark_results.csv`).
 
+*(Note: `run_benchmark.py` automatically regenerates all figures in `results/figures/` upon completion.)*
+
 ### 3. Generate Visualizations
 
-Re-generate all publication-quality figures from benchmark CSV:
+Re-generate all publication-quality figures directly from benchmark CSV:
 
 ```bash
 python -m nqueens_sat.visualize
@@ -107,9 +109,23 @@ python -m nqueens_sat.visualize
 Generated plots will be saved to `results/figures/`:
 - `cactus_plot.png`: Cumulative solved instances vs. runtime across all solvers.
 - `clauses_scaling.png`: Theoretical vs. empirical clause growth (log-log scale).
-- `runtime_comparison.png`: SAT encodings runtime comparison.
+- `runtime_comparison.png`: Runtime comparison: SAT (Glucose3) vs. CP vs. ILP.
 - `solver_comparison.png`: Side-by-side comparison of Glucose3 vs. CaDiCaL 153.
-- `encoding_overhead.png`: Encoding generation time vs. solving time.
+- `encoding_overhead.png`: Encoding generation time vs. pure solving time.
+
+### 4. Python API Example
+
+You can also use the package programmatically:
+
+```python
+from nqueens_sat.encoders import solve
+from nqueens_sat.utils import print_board
+
+# Solve N=8 using Product encoding with Glucose3
+res = solve("product", n=8, solver_name="glucose3")
+print(f"Solved in {res['solve_time_s']}s with {res['clauses']} clauses")
+print_board(res["solution"], n=8)
+```
 
 ---
 
